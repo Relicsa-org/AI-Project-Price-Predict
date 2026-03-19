@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relicsa | AI Price Predictor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="background-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1 class="gradient-text">Relicsa AI ✨</h1>
+            <p>Intelligent Software Project Estimator</p>
+        </header>
+
+        <main class="main-content">
+            <section class="chat-container glass-panel">
+                
+                <div id="chat-messages" class="chat-messages">
+                    <div class="message-bubble model-bubble">
+                        <div class="bubble-header"><i class="fa-solid fa-robot"></i> Relicsa AI</div>
+                        <div class="bubble-content">Hi there! I'm your AI pricing architect. Tell me a bit about the project you want to build (e.g. platform, features, goals) and I'll help you structure the architecture and estimate the cost!</div>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <form id="chat-form">
+                        <input type="text" id="chat-input" placeholder="Type your project details here..." autocomplete="off" required>
+                        <button type="submit" id="send-btn" class="glow-on-hover">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- Template for the Estimate Card to be injected dynamically into the chat stream -->
+    <template id="estimate-card-template">
+        <div class="message-bubble model-bubble estimate-bubble">
+            <div class="bubble-header"><i class="fa-solid fa-file-invoice-dollar"></i> Final Estimate Computed</div>
+            <div class="bubble-content">
+                <div class="summary-cards">
+                    <div class="card stat-card inner-glass">
+                        <i class="fa-solid fa-indian-rupee-sign text-orange"></i>
+                        <div class="stat-content">
+                            <p class="stat-label">Total Cost (INR)</p>
+                            <h2 class="stat-value total-inr">₹0</h2>
+                        </div>
+                    </div>
+                    <div class="card stat-card inner-glass">
+                        <i class="fa-solid fa-clock text-blue"></i>
+                        <div class="stat-content">
+                            <p class="stat-label">Est. Timeline</p>
+                            <h2 class="stat-value timeline">0 Weeks</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="inner-glass" style="margin-bottom: 1rem; padding: 1rem;">
+                    <h4><i class="fa-solid fa-robot"></i> AI Architecture Summary</h4>
+                    <p class="ai-summary-text" style="color: var(--text-muted); margin-top: 10px; font-size: 0.9em;"></p>
+                </div>
+
+                <div class="breakdown-panel inner-glass">
+                    <h4><i class="fa-solid fa-layer-group"></i> Component Breakdown</h4>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Component</th>
+                                    <th>Hours</th>
+                                    <th>Base Cost</th>
+                                </tr>
+                            </thead>
+                            <tbody class="breakdown-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="app.js"></script>
+</body>
+</html>
