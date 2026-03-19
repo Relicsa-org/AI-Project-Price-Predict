@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // Serve the static frontend client folder
-app.use(express.static(path.join(__dirname, '../client')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/api/pricing', pricingRoutes);
 
