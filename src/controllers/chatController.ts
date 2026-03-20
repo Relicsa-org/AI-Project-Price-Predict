@@ -19,8 +19,8 @@ export const processChat = async (req: Request, res: Response, next: NextFunctio
         
         // Ensure strictly structured history array
         const formattedHistory: ChatHistory = history.map(msg => ({
-            role: msg.role === 'model' ? 'model' : 'user', // strictly limit subset
-            parts: [{ text: msg.text }]
+            role: msg.role === 'model' ? 'assistant' : 'user', // strictly limit subset
+            content: msg.text
         }));
 
         // Send to Gemini

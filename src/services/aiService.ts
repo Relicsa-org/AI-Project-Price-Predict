@@ -1,24 +1,41 @@
-import { GoogleGenAI, Type } from '@google/genai'
-import { logger } from '../utils/logger'
-import { Skill, MatchedSkill } from '../types'
+import OpenAI, { AzureOpenAI } from 'openai';
+import { logger } from '../utils/logger';
+import { Skill, MatchedSkill } from '../types';
 
-const genAI = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY || ''
-})
+let openai: OpenAI | null = null;
 
-export type ChatHistory = { role: 'user' | 'model'; parts: { text: string }[] }[];
+const initOpenAI = () => {
+    if (process.env.AZURE_OPENAI_ENDPOINT && process.env.AZURE_OPENAI_API_KEY) {
+        // Clean the endpoint so it just has the base URL, allowing AzureOpenAI to build the route correctly
+        const cleanEndpoint = process.env.AZURE_OPENAI_ENDPOINT.split('/openai')[0];
+        
+        openai = new AzureOpenAI({
+            endpoint: cleanEndpoint,
+            apiKey: process.env.AZURE_OPENAI_API_KEY,
+            apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview',
+            deployment: process.env.AZURE_OPENAI_DEPLOYMENT_NAME,
+        });
+    } else if (process.env.OPENAI_API_KEY) {
+        openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    }
+};
+
+initOpenAI();
+
+export type ChatHistory = { role: 'user' | 'assistant' | 'system'; content: string }[];
 
 export const chatWithAgent = async (skills: Skill[], history: ChatHistory): Promise<{ type: string, text?: string, options?: string[], matchedSkills?: MatchedSkill[], summary?: string }> => {
-    if (!process.env.GEMINI_API_KEY) {
-        logger.warn('Gemini API Key missing');
-        return { type: 'text', text: 'API Key missing' };
+    if (!openai) {
+        initOpenAI();
+        if (!openai) {
+            logger.warn('OpenAI/Azure API credentials missing');
+            return { type: 'text', text: 'API configuration missing check .env files' };
+        }
     }
 
     const availableSkillsStr = skills.map(s => `- ID: ${s.id} | Name: ${s.name} | Category: ${s.category} | Description: ${s.description}`).join('\n');
 
-    const systemInstruction = {
-        parts: [{
-            text: `You are an expert Relicsa IT consultant and pricing architect.
+    const systemInstruction = `You are an expert Relicsa IT consultant and pricing architect.
 BE CONCISE. DO NOT ASK MORE THAN 2 QUESTIONS AT ONCE.
 
 CRITICAL DISCOVERY RULE: 
@@ -40,67 +57,72 @@ Always provide 2 to 4 highly relevant suggested options for the user to click ba
 CRITICAL: When estimating hours for each selected skill, remember that developers use high-efficiency AI tools (like GitHub Copilot) which speed up development by 30-50%. Do NOT reduce hours by more than 50% of the catalog's base_hours. Complex full-stack applications (like E-Commerce, Social Networks, SaaS) STILL REQUIRE a minimum of 4-6 weeks (160-240+ hours) to architect, build, and secure fully custom code from scratch, even with AI. Do not aggressively under-quote large scopes.
 
 Here is the available catalog of internal skills to choose from when calling the tool:
-${availableSkillsStr}`
-        }]
-    };
+${availableSkillsStr}`;
+
+    const messages = [
+        { role: 'system' as const, content: systemInstruction },
+        ...history
+    ];
 
     try {
-        const response = await genAI.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: history,
-            config: {
-                systemInstruction: systemInstruction.parts[0].text,
-                tools: [{
-                    functionDeclarations: [
-                        {
-                            name: 'calculate_price',
-                            description: 'Calls the internal pricing engine. Use this as soon as you have enough information about the project to predict the needed skills.',
-                            parameters: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    skills: {
-                                        type: Type.ARRAY,
-                                        items: { 
-                                            type: Type.OBJECT,
-                                            properties: {
-                                                id: { type: Type.STRING },
-                                                estimated_hours: { type: Type.NUMBER, description: "Dynamic estimation of hours for this skill, considering high-efficiency AI tool usage." }
-                                            },
-                                            required: ['id', 'estimated_hours']
+        const response = await openai.chat.completions.create({
+            model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o-mini',
+            messages: messages,
+            tools: [
+                {
+                    type: "function",
+                    function: {
+                        name: "calculate_price",
+                        description: "Calls the internal pricing engine. Use this as soon as you have enough information about the project to predict the needed skills.",
+                        parameters: {
+                            type: "object",
+                            properties: {
+                                skills: {
+                                    type: "array",
+                                    items: {
+                                        type: "object",
+                                        properties: {
+                                            id: { type: "string" },
+                                            estimated_hours: { type: "number", description: "Dynamic estimation of hours for this skill, considering high-efficiency AI tool usage." }
                                         },
-                                        description: 'The IDs of the skills mapped from the catalog and their dynamically estimated hours.'
+                                        required: ["id", "estimated_hours"],
+                                        additionalProperties: false
                                     },
-                                    summary: {
-                                        type: Type.STRING,
-                                        description: 'A 2-3 sentence summary explaining the technical approach.'
-                                    }
+                                    description: "The IDs of the skills mapped from the catalog and their dynamically estimated hours."
                                 },
-                                required: ['skills', 'summary']
-                            }
+                                summary: {
+                                    type: "string",
+                                    description: "A 2-3 sentence summary explaining the technical approach."
+                                }
+                            },
+                            required: ["skills", "summary"],
+                            additionalProperties: false
                         }
-                    ]
-                }]
-            }
+                    }
+                }
+            ]
         });
 
-        if (response.functionCalls && response.functionCalls.length > 0) {
-            const call = response.functionCalls[0];
-            if (call.name === 'calculate_price') {
-                const args = call.args as { skills: { id: string, estimated_hours: number }[], summary: string };
+        const choice = response.choices[0];
+
+        if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
+            const toolCall = choice.message.tool_calls[0];
+            if (toolCall.type === 'function' && toolCall.function.name === 'calculate_price') {
+                const args = JSON.parse(toolCall.function.arguments);
                 const match: MatchedSkill[] = [];
-                (args.skills || []).forEach(selectedSkill => {
+                (args.skills || []).forEach((selectedSkill: any) => {
                     const foundSkill = skills.find(s => s.id === selectedSkill.id);
                     if (foundSkill) {
                         match.push({ ...foundSkill, estimated_hours: selectedSkill.estimated_hours });
                     }
                 });
-                
+
                 logger.info(`Agent called calculate_price with ${match.length} skills`);
                 return { type: 'estimate', matchedSkills: match, summary: args.summary || 'Summary generated.' };
             }
         }
 
-        let resText = response.text || 'I need more information.';
+        let resText = choice.message.content || 'I need more information.';
         let options: string[] = [];
         try {
             const cleaned = resText.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -121,9 +143,12 @@ ${availableSkillsStr}`
 }
 
 export const matchSkills = async (skills: Skill[], projectDescription: string): Promise<{ matchedSkills: MatchedSkill[], summary: string }> => {
-    if (!process.env.GEMINI_API_KEY) {
-        logger.warn('Gemini API Key missing');
-        return { matchedSkills: [], summary: 'API Key missing' };
+    if (!openai) {
+        initOpenAI();
+        if (!openai) {
+            logger.warn('OpenAI/Azure API credentials missing');
+            return { matchedSkills: [], summary: 'API configuration missing check .env files' };
+        }
     }
 
     const prompt = `
@@ -140,19 +165,19 @@ export const matchSkills = async (skills: Skill[], projectDescription: string): 
         1. Select only the skills needed.
         2. Assign "estimated_hours" for each selected skill. CRITICAL: Developers use AI tools (like GitHub Copilot) which speed up development by 30-50%. Do NOT reduce hours by more than 50% of the Base Hours Reference. Complex applications (E-Commerce, SaaS, etc.) STILL REQUIRE a minimum of 4-6 weeks (160-240+ hours) to build robustly from scratch. Do not aggressively under-quote large projects.
         3. Generate a brief 2-3 sentence summary explaining the technical approach and components selected.
-        4. Return ONLY a JSON object with keys "skills" (array of objects, each containing "id" and "estimated_hours") and "summary" (string).
+        4. Return ONLY a JSON object with strictly these keys: "skills" (array of objects, each containing "id" and "estimated_hours") and "summary" (string).
         `;
     try {
-        const response = await genAI.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: { responseMimeType: "application/json" }
-        })
+        const response = await openai.chat.completions.create({
+            model: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o-mini',
+            messages: [{ role: 'user', content: prompt }],
+            response_format: { type: "json_object" }
+        });
 
-        const parsed = JSON.parse(response.text || '{}') as { skills: { id: string, estimated_hours: number }[], summary: string }
-        const selectedSkills = parsed.skills || []
-        const summary = parsed.summary || 'Summary could not be generated.'
-        
+        const parsed = JSON.parse(response.choices[0].message.content || '{}') as { skills: { id: string, estimated_hours: number }[], summary: string };
+        const selectedSkills = parsed.skills || [];
+        const summary = parsed.summary || 'Summary could not be generated.';
+
         const match: MatchedSkill[] = [];
         selectedSkills.forEach(selected => {
             const foundSkill = skills.find(s => s.id === selected.id);
@@ -163,9 +188,9 @@ export const matchSkills = async (skills: Skill[], projectDescription: string): 
             }
         });
 
-        return { matchedSkills: match, summary }
+        return { matchedSkills: match, summary };
     } catch (error) {
-        logger.error('Failed to generate pricing report', { error })
-        throw new Error('Pricing report generation failed')
+        logger.error('Failed to generate pricing report', { error });
+        throw new Error('Pricing report generation failed');
     }
 }
