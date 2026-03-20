@@ -1,12 +1,13 @@
 import app from '../src/app';
 import { loadConfig } from '../src/config';
+import serverless from 'serverless-http';
 
-// Initialize configuration from .env before accepting requests
+// Load env/config
 try {
     loadConfig();
 } catch (error) {
     console.error("Critical error during config load:", error);
 }
 
-// Export the Express App seamlessly for Vercel's serverless runtime
-export default app;
+// Wrap Express app for Vercel
+export default serverless(app);
