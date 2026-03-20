@@ -4,20 +4,21 @@ import { logger } from '../utils/logger';
 let config: Config | null = null;
 
 export const loadConfig = (): Config => {
+
     try {
         config = {
             agency_name: process.env.AGENCY_NAME || "Relicsa",
             currency: process.env.CURRENCY || "INR",
-            
+
             margin_percentage: parseFloat(process.env.MARGIN_PERCENTAGE || "10"),
             maintenance_percentage_monthly: parseFloat(process.env.MAINTENANCE_PERCENTAGE_MONTHLY || "1.5"),
             risk_buffer_default: parseFloat(process.env.RISK_BUFFER_DEFAULT || "15"),
-            
+
             exchange_rates: {
                 USD: parseFloat(process.env.EXCHANGE_USD || "83.5"),
                 EUR: parseFloat(process.env.EXCHANGE_EUR || "90.0"),
             },
-            
+
             rates: {
                 junior_dev: parseFloat(process.env.RATE_JUNIOR_DEV || "600"),
                 mid_dev: parseFloat(process.env.RATE_MID_DEV || "1000"),
@@ -35,7 +36,7 @@ export const loadConfig = (): Config => {
                 graphic_designer: parseFloat(process.env.RATE_GRAPHIC_DESIGNER || "1000"),
                 motion_designer: parseFloat(process.env.RATE_MOTION_DESIGNER || "1500"),
             },
-            
+
             global_multiplier: {
                 india: parseFloat(process.env.MULTIPLIER_INDIA || "1.0"),
                 us_uk: parseFloat(process.env.MULTIPLIER_US_UK || "2.5"),
