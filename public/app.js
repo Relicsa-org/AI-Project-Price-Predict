@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     };
 
-    const appendMessage = (role, text) => {
+    const appendMessage = (role, text, options = []) => {
         const bubble = document.createElement('div');
         bubble.className = `message-bubble ${role === 'user' ? 'user-bubble' : 'model-bubble'}`;
         
@@ -42,10 +42,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         const content = document.createElement('div');
         content.className = 'bubble-content';
-        content.textContent = text; // automatically escapes HTML for safety
+        
+        if (role === 'model' && typeof marked !== 'undefined') {
+            content.innerHTML = marked.parse(text);
+        } else {
+            content.textContent = text;
+        }
 
         bubble.appendChild(header);
         bubble.appendChild(content);
+        
+        if (options && options.length > 0) {
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'options-container';
+            options.forEach(opt => {
+                const chip = document.createElement('div');
+                chip.className = 'option-chip';
+                chip.textContent = opt;
+                chip.onclick = () => {
+                    chatInput.value = opt;
+                    chatForm.dispatchEvent(new Event('submit'));
+                };
+                optionsContainer.appendChild(chip);
+            });
+            bubble.appendChild(optionsContainer);
+        }
+
         chatMessages.appendChild(bubble);
         scrollToBottom();
     };
@@ -138,13 +160,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // 4. Handle Result Output
             if (result.type === 'text') {
-                appendMessage('model', result.text);
+                appendMessage('model', result.text, result.options || []);
                 conversationHistory.push({ role: 'model', text: result.text });
             } else if (result.type === 'estimate') {
                 // The AI successfully called the Custom Tool and calculated the price!
                 appendMessage('model', "I have gathered enough information! Based on your requirements, here is the official architecture estimate:");
                 renderEstimateCard(result.data);
-                conversationHistory.push({ role: 'model', text: "Official estimate provided to user." });
+                
+                const estDetails = result.data.estimate;
+                let breakdownStr = estDetails.breakdown.map(b => `${b.skill}: ${b.hours}hrs`).join(', ');
+                const aiContextMsg = `I have just provided the user with an official estimate. Summary: ${result.data.summary}. Breakdown: ${breakdownStr}. Total estimated hours: ${estDetails.totalHours}. The user is now seeing this pricing card. Do not re-calculate unless requirements change drastically.`;
+                
+                conversationHistory.push({ role: 'model', text: aiContextMsg });
             }
 
         } catch (error) {

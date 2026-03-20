@@ -3,7 +3,7 @@ skill_id: brand_motion_001
 name: Motion Graphics & Animation
 domain: branding
 complexity: high
-base_hours: 12
+base_hours: 18
 roles_required:
   - role: motion_designer
     percentage: 100

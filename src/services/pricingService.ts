@@ -2,11 +2,11 @@ import { getConfig } from '../config';
 import { loadSkills } from './skillService';
 import { matchSkills } from './aiService';
 import { logger } from '../utils/logger';
-import { Skill, Estimate, EstimateBreakdown, EstimateResult } from '../types';
+import { Skill, MatchedSkill, Estimate, EstimateBreakdown, EstimateResult } from '../types';
 import { enrichDescriptionWithUrlContent } from '../utils/scraper';
 
 const calculatePriceLogic = (
-    selectedSkills: Skill[],
+    selectedSkills: MatchedSkill[],
     config: ReturnType<typeof getConfig>,
     clientLocation: string):
     Estimate => {
@@ -18,7 +18,7 @@ const calculatePriceLogic = (
 
     selectedSkills.forEach(s => {
         let skillCost = 0
-        const skillHours = s.base_hours || 0;
+        const skillHours = s.estimated_hours || s.base_hours || 0;
 
         s.roles_required.forEach(roleReq => {
             const roleRate = config.rates[roleReq.role] || 0;
@@ -52,7 +52,7 @@ const calculatePriceLogic = (
 
 }
 
-export const generateEstimateFromSkills = (matchedSkills: Skill[], summary: string, location: string): EstimateResult => {
+export const generateEstimateFromSkills = (matchedSkills: MatchedSkill[], summary: string, location: string): EstimateResult => {
     logger.info(`Generating estimate struct for location: ${location}`);
 
     const config = getConfig();

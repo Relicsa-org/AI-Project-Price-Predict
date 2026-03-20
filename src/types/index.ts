@@ -35,6 +35,10 @@ export interface Skill {
     category: string;
 }
 
+export interface MatchedSkill extends Skill {
+    estimated_hours: number;
+}
+
 export interface EstimateBreakdown {
     skill: string;
     hours: number;
@@ -53,7 +57,7 @@ export interface EstimateResult {
     requirement: string;
     location: string;
     summary: string;
-    matchedSkills: Skill[];
+    matchedSkills: MatchedSkill[];
     estimate: Estimate;
 }
 

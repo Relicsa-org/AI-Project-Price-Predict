@@ -48,6 +48,7 @@ export const processChat = async (req: Request, res: Response, next: NextFunctio
             success: true,
             type: 'text',
             text: agentResponse.text,
+            options: agentResponse.options || [],
             message: 'Chat reply generated'
         });
 
