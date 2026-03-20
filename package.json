@@ -1,7 +1,7 @@
 {
   "name": "ai-price-predict",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
@@ -27,7 +27,6 @@
     "gray-matter": "^4.0.3",
     "js-yaml": "^4.1.1",
     "openai": "^6.32.0",
-    "serverless-http": "^4.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
