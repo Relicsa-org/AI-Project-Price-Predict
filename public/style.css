@@ -19,8 +19,8 @@
 body {
     background-color: var(--bg-dark);
     color: var(--text-main);
-    min-height: 100vh;
-    overflow-x: hidden;
+    height: 100vh;
+    overflow: hidden;
     position: relative;
     line-height: 1.6;
 }
@@ -71,21 +71,53 @@ body {
 }
 
 @keyframes float {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(50px, 50px) scale(1.1); }
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(50px, 50px) scale(1.1);
+    }
 }
 
 /* Layout */
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 1rem;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .header {
-    text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 1rem;
     animation: fadeInDown 0.8s ease-out;
+    flex-shrink: 0;
+    padding-bottom: 10px;
+}
+
+.nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.brand-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.nav-center {
+    flex: 2;
+    text-align: center;
+}
+
+.nav-right {
+    flex: 1;
 }
 
 .gradient-text {
@@ -93,14 +125,25 @@ body {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-size: 3rem;
+    font-size: 1.8rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
 }
 
-.header p {
+.nav-center p {
     color: var(--text-muted);
-    font-size: 1.1rem;
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.logo-img {
+    height: 48px;
+    width: 48px;
+    object-fit: contain;
+    border-radius: 12px;
+    margin-bottom: 0;
+    filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.7));
 }
 
 /* Glassmorphism Panels */
@@ -117,14 +160,16 @@ body {
 .main-content {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    flex: 1;
+    min-height: 0;
 }
 
 /* Chat UI Styles */
 .chat-container {
     display: flex;
     flex-direction: column;
-    height: 75vh;
+    flex: 1;
+    min-height: 0;
     animation: fadeInUp 0.8s ease-out;
     padding: 1rem;
 }
@@ -143,11 +188,13 @@ body {
 .chat-messages::-webkit-scrollbar {
     width: 8px;
 }
+
 .chat-messages::-webkit-scrollbar-track {
     background: transparent;
 }
+
 .chat-messages::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 4px;
 }
 
@@ -167,6 +214,25 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+/* Markdown Content Styling */
+.bubble-content p {
+    margin-bottom: 0.8rem;
+}
+
+.bubble-content p:last-child {
+    margin-bottom: 0;
+}
+
+.bubble-content ul,
+.bubble-content ol {
+    margin-bottom: 0.8rem;
+    padding-left: 1.5rem;
+}
+
+.bubble-content li {
+    margin-bottom: 0.4rem;
 }
 
 .model-bubble {
@@ -195,7 +261,7 @@ body {
 .chat-input-area {
     margin-top: 1rem;
     padding: 1rem;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     border-radius: 12px;
 }
 
@@ -207,7 +273,7 @@ body {
 #chat-input {
     flex: 1;
     padding: 1rem 1.5rem;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
     border-radius: 30px;
     color: var(--text-main);
@@ -245,7 +311,7 @@ body {
 .inner-glass {
     background: rgba(0, 0, 0, 0.4);
     border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Typing Indicator */
@@ -268,12 +334,25 @@ body {
     animation: typing 1.4s infinite ease-in-out both;
 }
 
-.typing-dot:nth-child(1) { animation-delay: -0.32s; }
-.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+.typing-dot:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: -0.16s;
+}
 
 @keyframes typing {
-    0%, 80%, 100% { transform: scale(0); }
-    40% { transform: scale(1); }
+
+    0%,
+    80%,
+    100% {
+        transform: scale(0);
+    }
+
+    40% {
+        transform: scale(1);
+    }
 }
 
 .summary-cards {
@@ -297,14 +376,22 @@ body {
 
 .stat-card i {
     font-size: 2.5rem;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     padding: 1rem;
     border-radius: 12px;
 }
 
-.text-green { color: #10b981; }
-.text-orange { color: #f59e0b; }
-.text-blue { color: #3b82f6; }
+.text-green {
+    color: #10b981;
+}
+
+.text-orange {
+    color: #f59e0b;
+}
+
+.text-blue {
+    color: #3b82f6;
+}
 
 .stat-label {
     color: var(--text-muted);
@@ -336,7 +423,8 @@ table {
     border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid var(--glass-border);
@@ -360,23 +448,47 @@ tbody tr:hover {
 
 /* Animations */
 @keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @media (max-width: 768px) {
-    .header h1 { font-size: 2.2rem; }
-    .summary-cards { grid-template-columns: 1fr; }
+    .header h1 {
+        font-size: 2.2rem;
+    }
+
+    .summary-cards {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* UI Quick-Reply Options */

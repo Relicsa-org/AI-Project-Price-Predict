@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relicsa | AI Price Predictor</title>
+    <link rel="icon" href="logo.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <div class="background-orbs">
         <div class="orb orb-1"></div>
@@ -17,23 +20,34 @@
 
     <div class="container">
         <header class="header">
-            <h1 class="gradient-text">Relicsa AI ✨</h1>
-            <p>Intelligent Software Project Estimator</p>
+            <div class="nav-bar">
+                <div class="brand-left">
+                    <img src="logo.png" alt="Relicsa AI Logo" class="logo-img" />
+                    <h1 class="gradient-text">Relicsa AI</h1>
+                </div>
+                <div class="nav-center">
+                    <p>Intelligent Software Project Estimator</p>
+                </div>
+                <div class="nav-right"></div>
+            </div>
         </header>
 
         <main class="main-content">
             <section class="chat-container glass-panel">
-                
+
                 <div id="chat-messages" class="chat-messages">
                     <div class="message-bubble model-bubble">
                         <div class="bubble-header"><i class="fa-solid fa-robot"></i> Relicsa AI</div>
-                        <div class="bubble-content">Hi there! I'm your AI pricing architect. Tell me a bit about the project you want to build (e.g. platform, features, goals) and I'll help you structure the architecture and estimate the cost!</div>
+                        <div class="bubble-content">Hi there! I'm your AI pricing architect. Tell me a bit about the
+                            project you want to build (e.g. platform, features, goals) and I'll help you structure the
+                            architecture and estimate the cost!</div>
                     </div>
                 </div>
 
                 <div class="chat-input-area">
                     <form id="chat-form">
-                        <input type="text" id="chat-input" placeholder="Type your project details here..." autocomplete="off" required>
+                        <input type="text" id="chat-input" placeholder="Type your project details here..."
+                            autocomplete="off" required>
                         <button type="submit" id="send-btn" class="glow-on-hover">
                             <i class="fa-solid fa-paper-plane"></i>
                         </button>
@@ -75,7 +89,8 @@
 
                 <div class="inner-glass" style="margin-bottom: 1rem; padding: 1rem;">
                     <h4><i class="fa-solid fa-robot"></i> AI Architecture Summary</h4>
-                    <p class="ai-summary-text" style="color: var(--text-muted); margin-top: 10px; font-size: 0.9em;"></p>
+                    <p class="ai-summary-text" style="color: var(--text-muted); margin-top: 10px; font-size: 0.9em;">
+                    </p>
                 </div>
 
                 <div class="breakdown-panel inner-glass">
@@ -102,4 +117,5 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>
