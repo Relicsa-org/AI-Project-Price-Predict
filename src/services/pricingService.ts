@@ -41,11 +41,17 @@ const calculatePriceLogic = (
 
     const finalCost = totalCost * (1 + (config.margin_percentage / 100));
     const finalPrice = finalCost * multiplier;
+    
+    // Calculate monthly maintenance
+    const monthlyMaintenanceCostINR = finalCost * (config.maintenance_percentage_monthly / 100);
+    const monthlyMaintenanceCostUSD = (finalPrice / config.exchange_rates.USD) * (config.maintenance_percentage_monthly / 100);
 
     return {
         totalHours,
         totalCostINR: finalCost,
         totalCostUSD: Math.round(finalPrice / config.exchange_rates.USD),
+        monthlyMaintenanceCostINR: Math.round(monthlyMaintenanceCostINR),
+        monthlyMaintenanceCostUSD: Math.round(monthlyMaintenanceCostUSD),
         breakdown,
         timelineWeeks: Math.ceil(totalHours / 40)
     }

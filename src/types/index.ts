@@ -9,6 +9,7 @@ export interface Config {
         [key: string]: number;
     };
     margin_percentage: number;
+    maintenance_percentage_monthly: number;
     risk_buffer_default: number;
     global_multiplier: {
         [key: string]: number;
@@ -49,6 +50,8 @@ export interface Estimate {
     totalHours: number;
     totalCostINR: number;
     totalCostUSD: number;
+    monthlyMaintenanceCostINR: number;
+    monthlyMaintenanceCostUSD: number;
     breakdown: EstimateBreakdown[];
     timelineWeeks: number;
 }

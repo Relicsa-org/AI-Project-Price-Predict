@@ -10,6 +10,7 @@ export const loadConfig = (): Config => {
             currency: process.env.CURRENCY || "INR",
             
             margin_percentage: parseFloat(process.env.MARGIN_PERCENTAGE || "10"),
+            maintenance_percentage_monthly: parseFloat(process.env.MAINTENANCE_PERCENTAGE_MONTHLY || "1.5"),
             risk_buffer_default: parseFloat(process.env.RISK_BUFFER_DEFAULT || "15"),
             
             exchange_rates: {

@@ -98,6 +98,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         cardNode.querySelector('.stat-label').textContent = isIndia ? 'Total Cost (INR)' : 'Total Cost (USD)';
         cardNode.querySelector('.total-inr').textContent = `${currencySymbol}${Math.round(totalAmount).toLocaleString(isIndia ? 'en-IN' : 'en-US')}`;
         cardNode.querySelector('.timeline').textContent = `${data.estimate.timelineWeeks} Weeks`;
+        
+        const monthlyMaintAmount = isIndia ? data.estimate.monthlyMaintenanceCostINR : data.estimate.monthlyMaintenanceCostUSD;
+        const maintEl = cardNode.querySelector('.maint-cost');
+        if (maintEl) {
+            maintEl.textContent = `${currencySymbol}${Math.round(monthlyMaintAmount).toLocaleString(isIndia ? 'en-IN' : 'en-US')}/mo`;
+        }
+
         cardNode.querySelector('.ai-summary-text').textContent = data.summary || 'Summary generated via Chat functions.';
 
         const iconEl = cardNode.querySelector('.fa-indian-rupee-sign');
